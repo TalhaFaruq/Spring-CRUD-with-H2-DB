@@ -9,6 +9,16 @@ public class Emp {
     public Emp() {
     }
 
+    public Emp(int id) {
+        this.id = id;
+        }
+
+    public Emp(String name, String email, String profession) {
+        this.name = name;
+        this.email = email;
+        this.profession = profession;
+    }
+
     public Emp(int id, String name, String email, String profession) {
         this.id = id;
         this.name = name;

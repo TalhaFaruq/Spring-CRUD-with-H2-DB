@@ -1,5 +1,7 @@
 package com.example.crudwithh2java;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -9,24 +11,17 @@ import java.io.PrintWriter;
 import java.sql.*;
 import java.util.ArrayList;
 
-@WebServlet(name = "helloServlet", value = "/hello-servlet")
+//@WebServlet(name = "empops", value = "/emp")
 
-public class EmpOperations extends HttpServlet implements EmpInterface {
+public class EmpOperations implements EmpInterface {
 
-    public void init() {
-    }
+    private void deleteBook(HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("text/html");
-
-        // Hello
-//        PrintWriter out = response.getWriter();
-//        out.println("<html><body>");
-//        out.println("<h1>" + message + "</h1>");
-//        out.println("</body></html>");
-    }
-
-    public void destroy() {
+        Emp emp = new Emp();
+        delete(emp);
+        response.sendRedirect("list");
     }
 
     private Connection jdbcConnection;
@@ -38,7 +33,7 @@ public class EmpOperations extends HttpServlet implements EmpInterface {
             } catch (ClassNotFoundException e) {
                 throw new SQLException(e);
             }
-            jdbcConnection = DriverManager.getConnection("jdbc:h2:~/tdb", "talha", "");
+            jdbcConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/emp", "root", "12345");
         }
     }
 
@@ -52,6 +47,8 @@ public class EmpOperations extends HttpServlet implements EmpInterface {
         preparedStatement.setString(1, emp.getName());
         preparedStatement.setString(2, emp.getEmail());
         preparedStatement.setString(3, emp.getProfession());
+        System.out.println(emp.getName()+" "+ emp.getEmail());
+
         if (preparedStatement.executeUpdate() > 0) {
             preparedStatement.close();
             jdbcConnection.close();
@@ -76,6 +73,23 @@ public class EmpOperations extends HttpServlet implements EmpInterface {
             Empdata.add(new Emp(id, name, email, profession));
         }
         return Empdata; //The Arraylist has all the values of table
+    }
+
+    public Emp edit(int id) throws SQLException{
+        String query = "Select * from users where id = ?";
+        Emp emp = new Emp();
+        connect();
+
+        PreparedStatement preparedStatement = jdbcConnection.prepareStatement(query);
+        preparedStatement.setInt(1, id);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+            emp.setName(resultSet.getString("name"));
+            emp.setEmail(resultSet.getString("email"));
+            emp.setProfession(resultSet.getString("profession"));
+        }
+
+        return emp;
     }
 
     @Override
